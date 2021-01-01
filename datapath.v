@@ -35,6 +35,8 @@ module datapath(
     input  wire       AnnulD,
     //-----------------------------------------------
 
+
+
     //-----mem stage---------------------------------
     output wire        MemWriteM,
     output wire [31:0] ALUOutM,
@@ -62,6 +64,7 @@ wire        BranchSignal;
 wire [31:0] PCPlus4D, PCBranchD, PCJumpD;
 //=====add b j=====
 wire [31:0] PCPlus8D;
+wire [31:0] ForwardJumpAddr;
 //=================
 wire [27:0] ExJumpAddr;
 //--imm--
@@ -75,7 +78,10 @@ wire [4:0]  RsD, RtD, RdD;
 //--hazard handle--
 wire [31:0] CmpA, CmpB;
 wire        EqualD;
-wire [1:0]  ForwardAD, ForwardBD;
+wire        ForwardAD, ForwardBD;
+//=====b j=====
+wire [1:0]  ForwardALD;
+//=============
 wire        StallD, FlushD;
 //-------------------------------------------------------
 
@@ -135,6 +141,10 @@ wire FlushE, StallE;
 //--signals--
 wire       RegWriteM;
 wire [1:0] DatatoRegM;
+//=====add b j=====
+wire       JalM;
+wire       BalM;
+//=================
 wire       HIWriteM;
 wire       LOWriteM;
 wire [1:0] DatatoHIM;
@@ -210,23 +220,29 @@ mux2 #(32)DBMux(DataBD, ALUOutM, ForwardBD, CmpB);
 //===to be changed===
 eqcmp Cmp(CmpA, CmpB, Op, RtD, EqualD);
 
-assign FlushD = PCSrcD[0:0] | PCSrcD[1:1];
+//assign FlushD = PCSrcD[0:0] | PCSrcD[1:1];
+assign FlushD = 1'b0;
 //--ext imm--
 signext Se(InstD[15:0], SignImmD);
 zeroext Ze(InstD[15:0], ZeroImmD);
 //--sl--
 sl2 #(32) Sl2Imm(SignImmD, ExSignImmD);
-sl2 #(26) Sl2JumpAddr(InstD[25:0], ExJumpAddr);
+//sl2 #(26) Sl2JumpAddr(InstD[25:0], ExJumpAddr);
+//=== j ===
+assign ExJumpAddr = {InstD[25:0], 2'b00};
+//=========
 //--branch addr--
 adder BranchAdder(PCPlus4D, ExSignImmD, PCBranchD);
-adder PCPlus8(PCPlus4D, 3'b100, PCPlus8D);
+adder PCPlus8(PCPlus4D, 32'b100, PCPlus8D);
 //--jump addr--
-mux2 #(32)JumpMux({InstD[31:28], ExJumpAddr}, DataAD, JrD, PCJumpD);
+mux3 #(32)ForwardAL(DataAD, PCPlus8E, ALUOutM, ForwardALD, ForwardJumpAddr);
+mux2 #(32)JumpMux({InstD[31:28], ExJumpAddr}, ForwardJumpAddr, JrD, PCJumpD);
 //-------------------------------------------------------------
 
 
 //-----excute stage---------------------------------------------
-flopenrc   #(29)E1(clk, rst, ~StallE, FlushE,
+//TODO:change the bits of signal
+flopenrc   #(27)E1(clk, rst, ~StallE, FlushE,
     {RegWriteD,DatatoRegD,MemWriteD,ALUControlD,ALUSrcAD,ALUSrcBD,RegDstD,
     JalD,BalD,HIWriteD,LOWriteD,DatatoHID,DatatoLOD,SignD,StartDivD,AnnulD},
     {RegWriteE,DatatoRegE,MemWriteE,ALUControlE,ALUSrcAE,ALUSrcBE,RegDstE,
@@ -253,7 +269,7 @@ mux3 #(32) AluSrcBMux(WriteDataE, SignImmE, ZeroImmE, ALUSrcBE, SrcBE);
 mux3 #(32) ForwardHIMux(HIDataE, ALUOutM, ResultW, ForwardHIE, NewHIDataE);
 mux3 #(32) ForwardLOMux(LODataE, ALUOutM, ResultW, ForwardLOE, NewLODataE);
 //=====add b j=====
-mux2 #(32) RegMux2(WriteRegTemp, 5'b11111, JalE | BalE, WriteRegE);
+mux2 #(5) RegMux2(WriteRegTemp, 5'b11111, JalE | BalE, WriteRegE);
 mux2 #(32) ALUMux(ALUOutTemp, PCPlus8E, JalE | BalE, ALUOutE);
 //=================
 alu Alu(ALUControlE, SrcAE, SrcBE, ALUOutTemp);
@@ -264,9 +280,10 @@ div Div(clk, rst, SignE, SrcAE, SrcBE, DivStart, AnnulE, {DivHIE, DivLOE}, DivRe
 
 
 //-----mem stage---------------------------------------------
-flopr  #(10)M1(clk, rst,
-    {RegWriteE,DatatoRegE,MemWriteE,HIWriteE,LOWriteE,DatatoHIE,DatatoLOE},
-    {RegWriteM,DatatoRegM,MemWriteM,HIWriteM,LOWriteM,DatatoHIM,DatatoLOM});
+//TODO:change the bits of signal
+flopr  #(12)M1(clk, rst,
+    {RegWriteE,DatatoRegE,MemWriteE,JalE,BalE,HIWriteE,LOWriteE,DatatoHIE,DatatoLOE},
+    {RegWriteM,DatatoRegM,MemWriteM,JalM,BalM,HIWriteM,LOWriteM,DatatoHIM,DatatoLOM});
 flopr #(32)M2(clk, rst, ALUOutE, ALUOutM);
 flopr #(32)M3(clk, rst, WriteDataE, WriteDataM);
 flopr  #(5)M4(clk, rst, WriteRegE, WriteRegM);
@@ -280,6 +297,7 @@ flopr#(32)M10(clk, rst, DivLOE, DivLOM);
 
 
 //-----writeback stage----------------------------------------
+//TODO:change the bits of signal
 flopr  #(9)W1(clk, rst,
     {RegWriteM,DatatoRegM,HIWriteM,LOWriteM,DatatoHIM,DatatoLOM},
     {RegWriteW,DatatoRegW,HIWriteW,LOWriteW,DatatoHIW,DatatoLOW});
@@ -306,14 +324,17 @@ hazard h(
     //decode stage
     RsD, RtD,
     BranchD,
+    JrD,
 
     StallD,
     ForwardAD, ForwardBD,
+    ForwardALD,
     //excute stage
     RsE, RtE,
     WriteRegE,
     DatatoRegE,
     RegWriteE,
+    JalE, BalE,
 
     StartDivE,
     DivReadyE,
@@ -326,9 +347,12 @@ hazard h(
     DatatoRegM,
     RegWriteM,
     HIWriteM, LOWriteM,
+    JalM, BalM,
     //writeback stage
     WriteRegW,
-    RegWriteW
+    RegWriteW,
+    HIWriteW,
+    LOWriteW
 );
 
 endmodule

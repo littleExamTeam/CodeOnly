@@ -5,18 +5,18 @@ module main_dec(
     input wire [5:0] op,funct,
 
     output wire jump, regwrite, regdst,
-    output wire alusrcA,//正常的话是0
+    output wire alusrcA,//正常的话�?0
     output wire [1:0] alusrcB, //这里修改成两位是为了选择操作数，00 normal 01 Sign 10 UNsign
     output wire branch, memwrite, 
-    output wire [1:0] DatatoReg,//这里是去找写到寄存器中的数 11 mem 10 HI 01 LO 00 ALU  there need changed to 3bits for div and mult
+    output wire [1:0] DatatoReg,//这里是去找写到寄存器中的�? 11 mem 10 HI 01 LO 00 ALU  there need changed to 3bits for div and mult
     output wire HIwrite,//这里是去寻找是否写HILO 直接传给HILO
-    output wire LOwrite, //选择写的是HI还是LO寄存�? 0 LO 1 HI  信号传给HILO
-    output wire [1:0] DataToHI, //这里是因为乘除法器加上的信号，00选ALU 01选乘法 10 选除法
-    output wire [1:0] DataToLO,  //这里是因为乘除法器加上的信号，00选ALU 01选乘法 10 选除法
+    output wire LOwrite, //选择写的是HI还是LO寄存�?? 0 LO 1 HI  信号传给HILO
+    output wire [1:0] DataToHI, //这里是因为乘除法器加上的信号�?00选ALU 01选乘�? 10 选除�?
+    output wire [1:0] DataToLO,  //这里是因为乘除法器加上的信号�?00选ALU 01选乘�? 10 选除�?
     output wire Sign, //这个是乘除法的符号数
-    output wire startDiv, //乘除法的开始信号
+    output wire startDiv, //乘除法的�?始信�?
 
-    output wire annul, //乘除法取消信号
+    output wire annul, //乘除法取消信�?
 //=====新加的关于跳转的指令=====
     output wire jal,
     output wire jr,
@@ -25,8 +25,8 @@ module main_dec(
 
 );
 
-reg [21:0] signals; //添加LOwrite之后变成11�?
-//TODO: 记得明天通路中需要修改这个位数 12.30 晚上 12 > 13
+reg [21:0] signals; //添加LOwrite之后变成11�??
+//TODO: 记得明天通路中需要修改这个位�? 12.30 晚上 12 > 13
 
 //assign {jump, regwrite, regdst, alusrcB[1:0], branch, memwrite, DatatoReg} = signals;
 assign {regwrite, DatatoReg[1:0], memwrite, alusrcA ,{alusrcB[1:1]}, {alusrcB[0:0]}, regdst, jump, branch,
@@ -72,6 +72,10 @@ always @(*) begin
             `EXE_MULTU:signals <= 22'b0_00_0_0_00_1_0_0_1_1_01_01_000_000;
 //=====================
 
+//======jump===========
+            `EXE_JR: signals <= 22'b0_00_0_0_00_0_1_0_0_0_00_00_0_0_0_0_1_0;
+            `EXE_JALR: signals <= 22'b1_00_0_0_00_0_0_0_0_0_00_00_0_0_0_0_1_0;
+//======jump===========
             default: signals <= 22'b1_00_0_0_00_1_0_0_0_0_00_00_000_000;
 
             
@@ -101,12 +105,11 @@ always @(*) begin
         `EXE_BGTZ: signals <= 22'b0_00_0_0_00_0_0_1_0_0_00_00_0_0_0_0_0_0;
         `EXE_BLEZ: signals <= 22'b0_00_0_0_00_0_0_1_0_0_00_00_0_0_0_0_0_0;
         `EXE_BLTZ: signals <= 22'b0_00_0_0_00_0_0_1_0_0_00_00_0_0_0_0_0_0;
-        `EXE_BGEZAL: signals <= 22'b0_11_0_0_00_0_0_1_0_0_00_00_0_0_0_0_0_1;
-        `EXE_BLTZAL: signals <= 22'b0_11_0_0_00_0_0_1_0_0_00_00_0_0_0_0_0_1;
+        `EXE_BGEZAL: signals <= 22'b1_00_0_0_00_0_0_1_0_0_00_00_0_0_0_0_0_1;
+        `EXE_BLTZAL: signals <= 22'b1_00_0_0_00_0_0_1_0_0_00_00_0_0_0_0_0_1;
         `EXE_J: signals <= 22'b0_00_0_0_00_0_1_0_0_0_00_00_0_0_0_0_0_0;
-        `EXE_JAL: signals <= 22'b0_11_0_0_00_0_1_0_0_0_00_00_0_0_0_1_0_0;
-        `EXE_JR: signals <= 22'b0_00_0_0_00_0_1_0_0_0_00_00_0_0_0_0_1_0;
-        `EXE_JALR: signals <= 22'b0_11_0_0_00_0_0_0_0_0_00_00_0_0_0_0_1_0;
+        `EXE_JAL: signals <= 22'b1_00_0_0_00_0_1_0_0_0_00_00_0_0_0_1_0_0;
+        
 
 
 //======Branch==========
@@ -130,12 +133,12 @@ module controller(
     output wire Branch, MemWrite, 
     output wire [1:0]DatatoReg,
     output wire HIwrite,LOwrite,
-    output wire [1:0] DataToHI, //这里是因为乘除法器加上的信号，00选ALU 01选乘法 10 选除法
-    output wire [1:0] DataToLO,  //这里是因为乘除法器加上的信号，00选ALU 01选乘法 10 选除法
+    output wire [1:0] DataToHI, //这里是因为乘除法器加上的信号�?00选ALU 01选乘�? 10 选除�?
+    output wire [1:0] DataToLO,  //这里是因为乘除法器加上的信号�?00选ALU 01选乘�? 10 选除�?
     output wire Sign, //这个是乘除法的符号数
-    output wire startDiv, //乘除法的开始信号
+    output wire startDiv, //乘除法的�?始信�?
 
-    output wire annul, //乘除法取消信号
+    output wire annul, //乘除法取消信�?
     output wire [7:0] ALUContr,
     //=====新加的关于跳转的指令=====
     output wire jal,
