@@ -20,22 +20,21 @@ module alu(
             `EXE_SUBU_OP: begin result <= x - y;end //无符号数减法
 
             `EXE_SLT_OP: begin 
-                if (($signed(x)) < ($signed(y)))begin 
+                if (($signed(x)) < ($signed(y))) begin 
                     result <= 32'b1;
                 end else begin
                     result <= 32'b0;
                 end
-            end //将寄存器 rs 的�?�与寄存�?? rt 中的值进行有符号数比较，如果寄存�?? rs 中的值小，则寄存�?? rd �?? 1�??
-                //否则寄存�?? rd �?? 0
+            end 
 
             `EXE_SLTI_OP: begin 
-                if (($signed(x)) < ($signed(y)))begin 
+                if (($signed(x)) < ($signed(y))) begin 
                     result <= 32'b1;
                 end else begin
                     result <= 32'b0;
                 end
-            end//将寄存器 rs 的�?�与有符号扩展至 32 位的立即�?? imm 进行有符号数比较，如果寄存器 rs 中的值小�??
-                //则寄存器 rt �?? 1；否则寄存器 rt �?? 0�??
+            end
+ 
 
 
             `EXE_SLTU_OP: begin 
