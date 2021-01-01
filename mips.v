@@ -21,6 +21,11 @@ wire [1:0]  ALUSrcBD;
 wire        RegDstD;
 wire        JumpD;
 wire        BranchD;
+
+wire       JalD;
+wire       JrD;
+wire       BalD;
+
 wire        HIWrite;
 wire        LOWrite;
 wire [1:0]  DatatoHID;
@@ -36,6 +41,7 @@ controller c(
     Op, Funct,
     JumpD, RegWriteD, RegDstD, ALUSrcAD, ALUSrcBD, BranchD, MemWriteD, 
     DatatoRegD, HIWrite, LOWrite,DatatoHID, DatatoLOD, SignD, StartDivD, AnnulD,
+    JalD, JrD, BalD,
     ALUControlD
 );
 
@@ -54,6 +60,10 @@ datapath dp(
     RegDstD,
     JumpD,
     BranchD,
+
+    JalD,
+    JrD,
+    BalD,
 
     HIWrite,
     LOWrite,

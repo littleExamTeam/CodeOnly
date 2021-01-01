@@ -5,7 +5,7 @@ module main_dec(
     input wire [5:0] op,funct,
 
     output wire jump, regwrite, regdst,
-    output wire alusrcA,
+    output wire alusrcA,//正常的话是0
     output wire [1:0] alusrcB, //这里修改成两位是为了选择操作数，00 normal 01 Sign 10 UNsign
     output wire branch, memwrite, 
     output wire [1:0] DatatoReg,//这里是去找写到寄存器中的数 11 mem 10 HI 01 LO 00 ALU  there need changed to 3bits for div and mult
@@ -16,16 +16,21 @@ module main_dec(
     output wire Sign, //这个是乘除法的符号数
     output wire startDiv, //乘除法的开始信号
 
-    output wire annul //乘除法取消信号
+    output wire annul, //乘除法取消信号
+//=====新加的关于跳转的指令=====
+    output wire jal,
+    output wire jr,
+    output wire bal
+//=====新加的关于跳转的指令===== 
 
 );
 
-reg [18:0] signals; //添加LOwrite之后变成11�?
+reg [21:0] signals; //添加LOwrite之后变成11�?
 //TODO: 记得明天通路中需要修改这个位数 12.30 晚上 12 > 13
 
 //assign {jump, regwrite, regdst, alusrcB[1:0], branch, memwrite, DatatoReg} = signals;
 assign {regwrite, DatatoReg[1:0], memwrite, alusrcA ,{alusrcB[1:1]}, {alusrcB[0:0]}, regdst, jump, branch,
-        HIwrite,LOwrite,DataToHI,DataToLO,Sign,startDiv,annul} = signals;
+        HIwrite,LOwrite,DataToHI[1:0],DataToLO[1:0],Sign,startDiv,annul,jal,jr,bal} = signals;
 
 //100  00
 // `define EXE_NOP			6'b000000
@@ -48,48 +53,68 @@ always @(*) begin
         6'b000000: begin    //lw
         case(funct)
 //=====move Position===
-            `EXE_SLL:signals <= 19'b1_00_0_1_00_1_0_0_0_0_00_00_000;
-            `EXE_SRA:signals <= 19'b1_00_0_1_00_1_0_0_0_0_00_00_000;
-            `EXE_SRL:signals <= 19'b1_00_0_1_00_1_0_0_0_0_00_00_000;
+            `EXE_SLL:signals <= 22'b1_00_0_1_00_1_0_0_0_0_00_00_000_000;
+            `EXE_SRA:signals <= 22'b1_00_0_1_00_1_0_0_0_0_00_00_000_000;
+            `EXE_SRL:signals <= 22'b1_00_0_1_00_1_0_0_0_0_00_00_000_000;
 //=====move Position===
 
 //=====HILO============
-            `EXE_MFHI:signals <= 19'b1_10_0_0_00_1_0_0_0_0_00_00_000;
-            `EXE_MFLO:signals <= 19'b1_01_0_0_00_1_0_0_0_0_00_00_000;
-            `EXE_MTHI:signals <= 19'b0_00_0_0_00_1_0_0_1_0_00_00_000;
-            `EXE_MTLO:signals <= 19'b0_00_0_0_00_1_0_0_0_1_00_00_000;
+            `EXE_MFHI:signals <= 22'b1_10_0_0_00_1_0_0_0_0_00_00_000_000;
+            `EXE_MFLO:signals <= 22'b1_01_0_0_00_1_0_0_0_0_00_00_000_000;
+            `EXE_MTHI:signals <= 22'b0_00_0_0_00_1_0_0_1_0_00_00_000_000;
+            `EXE_MTLO:signals <= 22'b0_00_0_0_00_1_0_0_0_1_00_00_000_000;
 //=====HILO============
 //{regwrite, DatatoReg[1:0], memwrite, alusrcA ,{alusrcB[1:1]}, {alusrcB[0:0]}, regdst, jump, branch,HIwrite,LOwrite,DataToHI,DataToLO} = signals;
 //=====ARI=============
-            `EXE_DIV:signals <= 19'b0_00_0_0_00_1_0_0_1_1_10_10_110;
-            `EXE_DIVU:signals <= 19'b0_00_0_0_00_1_0_0_1_1_10_10_010;
-            `EXE_MULT:signals <= 19'b0_00_0_0_00_1_0_0_1_1_01_01_100;
-            `EXE_MULTU:signals <= 19'b0_00_0_0_00_1_0_0_1_1_01_01_000;
+            `EXE_DIV:signals <= 22'b0_00_0_0_00_1_0_0_1_1_10_10_110_000;
+            `EXE_DIVU:signals <= 22'b0_00_0_0_00_1_0_0_1_1_10_10_010_000;
+            `EXE_MULT:signals <= 22'b0_00_0_0_00_1_0_0_1_1_01_01_100_000;
+            `EXE_MULTU:signals <= 22'b0_00_0_0_00_1_0_0_1_1_01_01_000_000;
 //=====================
 
-            default: signals <= 19'b1_00_0_0_00_1_0_0_0_0_00_00_000;
+            default: signals <= 22'b1_00_0_0_00_1_0_0_0_0_00_00_000_000;
 
             
         endcase
     
     end
 //======Logic===========
-        `EXE_ANDI:signals <= 19'b1_00_0_0_10_0_0_0_0_0_00_00_000;
-        `EXE_XORI:signals <= 19'b1_00_0_0_10_0_0_0_0_0_00_00_000;
-        `EXE_ORI:signals <= 19'b1_00_0_0_10_0_0_0_0_0_00_00_000;
-        `EXE_LUI:signals <= 19'b1_00_0_0_10_0_0_0_0_0_00_00_000;
+        `EXE_ANDI:signals <= 22'b1_00_0_0_10_0_0_0_0_0_00_00_000_000;
+        `EXE_XORI:signals <= 22'b1_00_0_0_10_0_0_0_0_0_00_00_000_000;
+        `EXE_ORI:signals <= 22'b1_00_0_0_10_0_0_0_0_0_00_00_000_000;
+        `EXE_LUI:signals <= 22'b1_00_0_0_10_0_0_0_0_0_00_00_000_000;
 //======Logic===========
 
 //======ARI=============
 
-        `EXE_ADDI: signals <= 19'b1_00_0_0_01_1_0_0_0_0_00_00_000;
-        `EXE_ADDIU: signals <= 19'b1_00_0_0_01_1_0_0_0_0_00_00_000;
-        `EXE_SLTI: signals <= 19'b1_00_0_0_01_1_0_0_0_0_00_00_000;
-        `EXE_SLTIU: signals <= 19'b1_00_0_0_01_1_0_0_0_0_00_00_000;
+        `EXE_ADDI: signals <= 22'b1_00_0_0_01_1_0_0_0_0_00_00_000_000;
+        `EXE_ADDIU: signals <= 22'b1_00_0_0_01_1_0_0_0_0_00_00_000_000;
+        `EXE_SLTI: signals <= 22'b1_00_0_0_01_1_0_0_0_0_00_00_000_000;
+        `EXE_SLTIU: signals <= 22'b1_00_0_0_01_1_0_0_0_0_00_00_000_000;
         
+// assign {regwrite, DatatoReg[1:0], memwrite, alusrcA ,{alusrcB[1:1]}, {alusrcB[0:0]}, regdst, jump, branch,
+//         HIwrite,LOwrite,DataToHI[1:0],DataToLO[1:0],Sign,startDiv,annul,jal,jr,bal} = signals;
 //======ARI=============
+        `EXE_BEQ: signals <= 22'b0_00_0_0_00_0_0_1_0_0_00_00_0_0_0_0_0_0;
+        `EXE_BNE: signals <= 22'b0_00_0_0_00_0_0_1_0_0_00_00_0_0_0_0_0_0;
+        `EXE_BGEZ: signals <= 22'b0_00_0_0_00_0_0_1_0_0_00_00_0_0_0_0_0_0;
+        `EXE_BGTZ: signals <= 22'b0_00_0_0_00_0_0_1_0_0_00_00_0_0_0_0_0_0;
+        `EXE_BLEZ: signals <= 22'b0_00_0_0_00_0_0_1_0_0_00_00_0_0_0_0_0_0;
+        `EXE_BLTZ: signals <= 22'b0_00_0_0_00_0_0_1_0_0_00_00_0_0_0_0_0_0;
+        `EXE_BGEZAL: signals <= 22'b0_11_0_0_00_0_0_1_0_0_00_00_0_0_0_0_0_1;
+        `EXE_BLTZAL: signals <= 22'b0_11_0_0_00_0_0_1_0_0_00_00_0_0_0_0_0_1;
+        `EXE_J: signals <= 22'b0_00_0_0_00_0_1_0_0_0_00_00_0_0_0_0_0_0;
+        `EXE_JAL: signals <= 22'b0_11_0_0_00_0_1_0_0_0_00_00_0_0_0_1_0_0;
+        `EXE_JR: signals <= 22'b0_00_0_0_00_0_1_0_0_0_00_00_0_0_0_0_1_0;
+        `EXE_JALR: signals <= 22'b0_11_0_0_00_0_0_0_0_0_00_00_0_0_0_0_1_0;
 
-        default:signals <= 19'b0_00_0_0_00_0_0_0_0_0_00_00_000;
+
+//======Branch==========
+
+
+//======Branch==========
+
+        default:signals <= 22'b0_00_0_0_00_0_0_0_0_0_00_00_000_000;
 
     endcase
 end
@@ -111,7 +136,12 @@ module controller(
     output wire startDiv, //乘除法的开始信号
 
     output wire annul, //乘除法取消信号
-    output wire [7:0] ALUContr 
+    output wire [7:0] ALUContr,
+    //=====新加的关于跳转的指令=====
+    output wire jal,
+    output wire jr,
+    output wire bal
+//=====新加的关于跳转的指令=====  
 
 );
 
@@ -134,7 +164,13 @@ main_dec main_dec(
     .DataToLO(DataToLO),
     .Sign(Sign),
     .startDiv(startDiv),
-    .annul(annul)
+    .annul(annul),
+
+    //=====新加的关于跳转的指令=====
+    .jal(jal),
+    .jr(jr),
+    .bal(bal)
+//=====新加的关于跳转的指令===== 
 
 );
 
