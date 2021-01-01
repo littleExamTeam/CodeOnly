@@ -21,6 +21,11 @@ wire [1:0]  ALUSrcBD;
 wire        RegDstD;
 wire        JumpD;
 wire        BranchD;
+
+wire       JalD;
+wire       JrD;
+wire       BalD;
+
 wire        HIWrite;
 wire        LOWrite;
 wire [1:0]  DatatoHID;
@@ -33,40 +38,61 @@ wire [5:0] Op;
 wire [5:0] Funct;
 
 controller c(
-    Op, Funct,
-    JumpD, RegWriteD, RegDstD, ALUSrcAD, ALUSrcBD, BranchD, MemWriteD, 
-    DatatoRegD, HIWrite, LOWrite,DatatoHID, DatatoLOD, SignD, StartDivD, AnnulD,
-    ALUControlD
+    .Op(Op), 
+    .Funct(Funct),
+    .Jump(JumpD), 
+    .RegWrite(RegWriteD), 
+    .RegDst(RegDstD), 
+    .ALUSrcA(ALUSrcAD), 
+    .ALUSrcB(ALUSrcBD), 
+    .Branch(BranchD), 
+    .MemWrite(MemWriteD), 
+    .DatatoReg(DatatoRegD), 
+    .HIwrite(HIWrite), 
+    .LOwrite(LOWrite),
+    .DataToHI(DatatoHID), 
+    .DataToLO(DatatoLOD), 
+    .Sign(SignD), 
+    .startDiv(StartDivD), 
+    .annul(AnnulD),
+    .ALUContr(ALUControlD),
+    .jal(JalD), 
+    .jr(JrD), 
+    .bal(BalD)
 );
 
 datapath dp(
-    clk, rst,
+    .clk(clk), .rst(rst),
 
-    PCF, InstF,
+    .PCF(PCF), .InstF(InstF),
     
-    Op, Funct,
-    RegWriteD,
-    DatatoRegD,
-    MemWriteD,
-    ALUControlD,
-    ALUSrcAD,
-    ALUSrcBD,
-    RegDstD,
-    JumpD,
-    BranchD,
+    .Op(Op), .Funct(Funct),
+    .RegWriteD(RegWriteD),
+    .DatatoRegD(DatatoRegD),
+    .MemWriteD(MemWriteD),
+    .ALUControlD(ALUControlD),
+    .ALUSrcAD(ALUSrcAD),
+    .ALUSrcBD(ALUSrcBD),
+    .RegDstD(RegDstD),
+    .JumpD(JumpD),
+    .BranchD(BranchD),
 
-    HIWrite,
-    LOWrite,
-    DatatoHID,
-    DatatoLOD,
-    SignD,
-    StartDivD,
-    AnnulD,
+    .JalD(JalD),
+    .JrD(JrD),
+    .BalD(BalD),
+
+    .HIWriteD(HIWrite),
+    .LOWriteD(LOWrite),
+    .DatatoHID(DatatoHID),
+    .DatatoLOD(DatatoLOD),
+    .SignD(SignD),
+    .StartDivD(StartDivD),
+    .AnnulD(AnnulD),
     
-    MemWriteM,
-    ALUOutM,
-    WriteDataM,
-    ReadDataM
+    .MemWriteM(MemWriteM),
+    .ALUOutM(ALUOutM),
+    .WriteDataM(WriteDataM),
+    .ReadDataM(ReadDataM)
 );
 
 endmodule

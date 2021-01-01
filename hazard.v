@@ -6,16 +6,22 @@ module hazard(
     //decode stage
     input wire [4:0] RsD, RtD,
     input wire BranchD,
+    //=====b j=====
+    input wire JrD,
+    //=============
 
     output wire StallD,
     output wire ForwardAD, ForwardBD,
+    output reg [1:0] ForwardALD,
 
     //excute stage
     input wire [4:0] RsE, RtE,
     input wire [4:0] WriteRegE,
     input wire [1:0] DatatoRegE,
     input wire RegWriteE,
-
+    //=====b j=====
+    input wire JalE, BalE,
+    //=============
     input wire StartDivE,
     input wire DivReadyE,
 
@@ -29,8 +35,10 @@ module hazard(
     input wire [4:0] WriteRegM,
     input wire [1:0] DatatoRegM,
     input wire RegWriteM,
-    //add movedata inst oprand
     input wire HIWriteM, LOWriteM,
+    //=====b j=====
+    input wire JalM, BalM,
+    //=============
     //------------------------
 
     //writeback stage
@@ -51,10 +59,11 @@ assign ForwardBD = (RtD != 0 & RtD == WriteRegM & RegWriteM);
 always @(*) begin
     ForwardAE = 2'b00;
     ForwardBE = 2'b00;
-    //add datamove inst oprand
+
     ForwardHIE = 2'b00; 
     ForwardLOE = 2'b00;
-    //------------------------
+    //=====b j=====
+    ForwardALD = 2'b00;
     if(RsE != 0) begin
         if(RsE == WriteRegM & RegWriteM)begin
             ForwardAE = 2'b10;
@@ -87,6 +96,13 @@ always @(*) begin
         ForwardLOE = 2'b10;
     end
     //------------------------
+    //forwarding AL
+    if(JrD == 1'b1 & JalE | BalE == 1'b1) begin
+        ForwardALD = 2'b01;
+    end
+    else if(JrD == 1'b1 & JalM | BalM == 1'b1) begin
+        ForwardALD = 2'b10;
+    end
 end
 
 //stalls
