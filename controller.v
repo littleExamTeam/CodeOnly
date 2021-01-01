@@ -43,6 +43,8 @@ assign {regwrite, DatatoReg[1:0], memwrite, alusrcA ,{alusrcB[1:1]}, {alusrcB[0:
 // `define EXE_XORI		6'b001110
 // `define EXE_LUI			6'b001111
 
+
+
 always @(*) begin
 
     case(op)
