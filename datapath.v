@@ -10,6 +10,7 @@ module datapath(
     //-----decode stage------------------------------
     output wire [5:0] Op,
     output wire [5:0] Funct,
+    output wire [4:0] Rt,
     //--signals--
     input  wire       RegWriteD,
     input  wire [1:0] DatatoRegD,
@@ -203,6 +204,7 @@ assign RsD   = InstD[25:21];
 assign RtD   = InstD[20:16];
 assign RdD   = InstD[15:11];
 assign Funct = InstD[5:0];
+assign Rt    = RtD;
 
 assign SaD = {27'b0, InstD[10:6]};
 

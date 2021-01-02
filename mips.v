@@ -36,10 +36,11 @@ wire        AnnulD;
 
 wire [5:0] Op;
 wire [5:0] Funct;
-
+wire [4:0] Rt;
 controller c(
     .Op(Op), 
     .Funct(Funct),
+    .rt(Rt),
     .Jump(JumpD), 
     .RegWrite(RegWriteD), 
     .RegDst(RegDstD), 
@@ -67,6 +68,7 @@ datapath dp(
     .PCF(PCF), .InstF(InstF),
     
     .Op(Op), .Funct(Funct),
+    .Rt(Rt),
     .RegWriteD(RegWriteD),
     .DatatoRegD(DatatoRegD),
     .MemWriteD(MemWriteD),
