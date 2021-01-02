@@ -5,7 +5,7 @@ module mips(
     output wire [31:0] PCF,
     input  wire [31:0] InstF,
 
-    output wire MemWriteM,
+    output wire [3:0]  Sel,
     output wire [31:0] ALUOutM,
     output wire [31:0] WriteDataM,
     input  wire [31:0] ReadDataM
@@ -37,6 +37,7 @@ wire        AnnulD;
 wire [5:0] Op;
 wire [5:0] Funct;
 wire [4:0] Rt;
+
 controller c(
     .Op(Op), 
     .Funct(Funct),
@@ -91,7 +92,7 @@ datapath dp(
     .StartDivD(StartDivD),
     .AnnulD(AnnulD),
     
-    .MemWriteM(MemWriteM),
+    .Sel(Sel),
     .ALUOutM(ALUOutM),
     .WriteDataM(WriteDataM),
     .ReadDataM(ReadDataM)

@@ -2,7 +2,7 @@
 module top(
     input wire clk,rst,
 	output wire[31:0] WriteData, DataAddr,
-	output wire MemWrite,
+	output wire [3:0]  Sel,
 	output wire [31:0] pc_out,
 	output wire [31:0] inst_out
     );
@@ -11,7 +11,7 @@ wire[31:0] PC, Inst, ReadData;
 
 mips mips(clk, rst, 
     PC, Inst,
-    MemWrite,
+    Sel,
     DataAddr,
     WriteData,
     ReadData);
@@ -20,7 +20,7 @@ inst_mem inst_mem(~clk, PC, Inst);
 data_mem data_mem(
     .clka(~clk),
     .ena(1'b1),
-    .wea(MemWrite),
+    .wea(Sel),
     .addra(DataAddr),
     .dina(WriteData),
     .douta(ReadData));
