@@ -97,6 +97,7 @@ wire [1:0] ALUSrcBE;
 wire       RegDstE;
 //=====add b j=====
 wire       JalE;
+wire       JrE;
 wire       BalE;
 //=================
 wire       HIWriteE;
@@ -236,17 +237,17 @@ adder BranchAdder(PCPlus4D, ExSignImmD, PCBranchD);
 adder PCPlus8(PCPlus4D, 32'b100, PCPlus8D);
 //--jump addr--
 mux3 #(32)ForwardAL(DataAD, PCPlus8E, ALUOutM, ForwardALD, ForwardJumpAddr);
-mux2 #(32)JumpMux({InstD[31:28], ExJumpAddr}, ForwardJumpAddr, JrD, PCJumpD);
+mux2 #(32)JumpMux({PCPlus4D[31:28], ExJumpAddr}, ForwardJumpAddr, JrD, PCJumpD);
 //-------------------------------------------------------------
 
 
 //-----excute stage---------------------------------------------
 //TODO:change the bits of signal
-flopenrc   #(27)E1(clk, rst, ~StallE, FlushE,
+flopenrc   #(28)E1(clk, rst, ~StallE, FlushE,
     {RegWriteD,DatatoRegD,MemWriteD,ALUControlD,ALUSrcAD,ALUSrcBD,RegDstD,
-    JalD,BalD,HIWriteD,LOWriteD,DatatoHID,DatatoLOD,SignD,StartDivD,AnnulD},
+    JalD,JrD,BalD,HIWriteD,LOWriteD,DatatoHID,DatatoLOD,SignD,StartDivD,AnnulD},
     {RegWriteE,DatatoRegE,MemWriteE,ALUControlE,ALUSrcAE,ALUSrcBE,RegDstE,
-    JalE,BalE,HIWriteE,LOWriteE,DatatoHIE,DatatoLOE,SignE,StartDivE,AnnulE});
+    JalE,JrE,BalE,HIWriteE,LOWriteE,DatatoHIE,DatatoLOE,SignE,StartDivE,AnnulE});
 flopenrc  #(32)E2(clk, rst, ~StallE, FlushE, DataAD, DataAE);
 flopenrc  #(32)E3(clk, rst, ~StallE, FlushE, DataBD, DataBE);
 flopenrc   #(5)E4(clk, rst, ~StallE, FlushE, RsD, RsE);
@@ -270,7 +271,7 @@ mux3 #(32) ForwardHIMux(HIDataE, ALUOutM, ResultW, ForwardHIE, NewHIDataE);
 mux3 #(32) ForwardLOMux(LODataE, ALUOutM, ResultW, ForwardLOE, NewLODataE);
 //=====add b j=====
 mux2 #(5) RegMux2(WriteRegTemp, 5'b11111, JalE | BalE, WriteRegE);
-mux2 #(32) ALUMux(ALUOutTemp, PCPlus8E, JalE | BalE, ALUOutE);
+mux2 #(32) ALUMux(ALUOutTemp, PCPlus8E, JalE | JrE | BalE, ALUOutE);
 //=================
 alu Alu(ALUControlE, SrcAE, SrcBE, ALUOutTemp);
 my_mul Mult(SrcAE, SrcBE, SignE, {MultHIE, MultLOE});
