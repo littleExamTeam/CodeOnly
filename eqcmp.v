@@ -15,7 +15,7 @@ module eqcmp(
 	begin
 		case(op)
 			`EXE_BEQ: begin 
-				if(a == b)begin
+				if(($signed(a)) == ($signed(b)))begin
 					isTran <= 1'b1;
 				end else begin
 					isTran <= 1'b0;
@@ -23,7 +23,7 @@ module eqcmp(
 			end
 
 			`EXE_BNE:begin
-				if(a == b)begin
+				if(($signed(a)) == ($signed(b)))begin
 					isTran <= 1'b0;
 				end else begin
 					isTran <= 1'b1;
@@ -39,7 +39,7 @@ module eqcmp(
 			// end
 
 			`EXE_BGTZ:begin
-				if(a > 0)begin
+				if(($signed(a)) > 0)begin
 					isTran <= 1'b1;
 				end else begin
 					isTran <= 1'b0;
@@ -47,7 +47,7 @@ module eqcmp(
 			end
 
 			`EXE_BLEZ:begin
-				if(a < 0 || a == 0)begin
+				if(($signed(a)) < 0 || ($signed(a)) == 0)begin
 					isTran <= 1'b1;
 				end else begin
 					isTran <= 1'b0;
@@ -65,7 +65,7 @@ module eqcmp(
 			6'b000001:begin
 				if(rt == `EXE_BGEZAL)begin
 
-					if(a > 0 || a == 0)begin
+					if(($signed(a)) > 0 || ($signed(a)) == 0)begin
 						isTran <= 1'b1;
 					end else begin
 						isTran <= 1'b0;
@@ -73,7 +73,7 @@ module eqcmp(
 
 				end else if(rt == `EXE_BLTZAL) begin
 
-					if(a < 0)begin
+					if(($signed(a)) < 0)begin
 						isTran <= 1'b1;
 					end else begin
 						isTran <= 1'b0;
@@ -81,7 +81,7 @@ module eqcmp(
 					
 				end else if(rt == `EXE_BGEZ) begin
 
-					if(a > 0 || a == 0)begin
+					if(($signed(a)) > 0 || ($signed(a)) == 0)begin
 						isTran <= 1'b1;
 					end else begin
 						isTran <= 1'b0;
@@ -89,7 +89,7 @@ module eqcmp(
 
 				end else if(rt == `EXE_BLTZ) begin
 
-					if(a < 0)begin
+					if(($signed(a)) < 0)begin
 						isTran <= 1'b1;
 					end else begin
 						isTran <= 1'b0;

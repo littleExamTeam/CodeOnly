@@ -28,7 +28,7 @@ module datapath(
     //=============================
 
     input  wire       HIWriteD,
-    input  wire       LOWriteD, 
+    input  wire       LOWriteD,
     input  wire [1:0] DatatoHID,
     input  wire [1:0] DatatoLOD,
     input  wire       SignD,
@@ -39,7 +39,8 @@ module datapath(
 
 
     //-----mem stage---------------------------------
-    output wire        MemWriteM,
+    //--add memsel--
+    output wire [3:0]  Sel,
     output wire [31:0] ALUOutM,
     output wire [31:0] WriteDataM,
     input  wire [31:0] ReadDataM
@@ -143,10 +144,9 @@ wire FlushE, StallE;
 //--signals--
 wire       RegWriteM;
 wire [1:0] DatatoRegM;
-//=====add b j=====
+wire [7:0] ALUControlM;
 wire       JalM;
 wire       BalM;
-//=================
 wire       HIWriteM;
 wire       LOWriteM;
 wire [1:0] DatatoHIM;
@@ -159,6 +159,9 @@ wire [31:0] MultHIM, MultLOM;
 wire [31:0] DivHIM, DivLOM;
 //--regs info--
 wire [4:0]  WriteRegM; 
+//--mem--
+//wire [3:0]  Sel;
+wire [31:0] FinalDataM;
 //----------------------------------------------------------
 
 
@@ -284,9 +287,9 @@ div Div(clk, rst, SignE, SrcAE, SrcBE, DivStart, AnnulE, {DivHIE, DivLOE}, DivRe
 
 //-----mem stage---------------------------------------------
 //TODO:change the bits of signal
-flopr  #(12)M1(clk, rst,
-    {RegWriteE,DatatoRegE,MemWriteE,JalE,BalE,HIWriteE,LOWriteE,DatatoHIE,DatatoLOE},
-    {RegWriteM,DatatoRegM,MemWriteM,JalM,BalM,HIWriteM,LOWriteM,DatatoHIM,DatatoLOM});
+flopr  #(20)M1(clk, rst,
+    {RegWriteE,DatatoRegE,MemWriteE,ALUControlE,JalE,BalE,HIWriteE,LOWriteE,DatatoHIE,DatatoLOE},
+    {RegWriteM,DatatoRegM,MemWriteM,ALUControlM,JalM,BalM,HIWriteM,LOWriteM,DatatoHIM,DatatoLOM});
 flopr #(32)M2(clk, rst, ALUOutE, ALUOutM);
 flopr #(32)M3(clk, rst, WriteDataE, WriteDataM);
 flopr  #(5)M4(clk, rst, WriteRegE, WriteRegM);
@@ -296,6 +299,8 @@ flopr #(32)M7(clk, rst, MultHIE, MultHIM);
 flopr #(32)M8(clk, rst, MultLOE, MultLOM);
 flopr #(32)M9(clk, rst, DivHIE, DivHIM);
 flopr#(32)M10(clk, rst, DivLOE, DivLOM);
+ByteSel BS(ALUOutM[1:0], ALUControlM, Sel);
+GetReadData GRD(ALUOutM[1:0], ReadDataM, ALUControlM, FinalDataM);
 //------------------------------------------------------------
 
 
@@ -304,7 +309,7 @@ flopr#(32)M10(clk, rst, DivLOE, DivLOM);
 flopr  #(9)W1(clk, rst,
     {RegWriteM,DatatoRegM,HIWriteM,LOWriteM,DatatoHIM,DatatoLOM},
     {RegWriteW,DatatoRegW,HIWriteW,LOWriteW,DatatoHIW,DatatoLOW});
-flopr #(32)W2(clk, rst, ReadDataM, ReadDataW);
+flopr #(32)W2(clk, rst, FinalDataM, ReadDataW);
 flopr #(32)W3(clk, rst, ALUOutM, ALUOutW);
 flopr  #(5)W4(clk, rst, WriteRegM, WriteRegW);
 flopr #(32)W5(clk, rst, HIDataM, HIDataW);
