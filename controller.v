@@ -102,6 +102,8 @@ always @(*) begin
 // assign {regwrite, DatatoReg[1:0], memwrite, alusrcA ,{alusrcB[1:1]}, {alusrcB[0:0]}, regdst, jump, branch,
 //         HIwrite,LOwrite,DataToHI[1:0],DataToLO[1:0],Sign,startDiv,annul,jal,jr,bal} = signals;
 //======ARI=============
+
+//======Branch==========
         `EXE_BEQ: signals <= 22'b0_00_0_0_00_0_0_1_0_0_00_00_0_0_0_0_0_0;
         `EXE_BNE: signals <= 22'b0_00_0_0_00_0_0_1_0_0_00_00_0_0_0_0_0_0;
 
@@ -124,12 +126,24 @@ always @(*) begin
         `EXE_J: signals <= 22'b0_00_0_0_00_0_1_0_0_0_00_00_0_0_0_0_0_0;
         `EXE_JAL: signals <= 22'b1_00_0_0_00_0_1_0_0_0_00_00_0_0_0_1_0_0;
         
-
-
 //======Branch==========
+// assign {regwrite, DatatoReg[1:0], memwrite, alusrcA ,{alusrcB[1:1]}, {alusrcB[0:0]}, regdst, jump, branch,
+//         HIwrite,LOwrite,DataToHI[1:0],DataToLO[1:0],Sign,startDiv,annul,jal,jr,bal} = signals;
+//======load&&save======
+        `EXE_LB: signals <= 22'b1_11_0_0_01_0_0_0_0_0_00_00_0_0_0_0_0_0;
+        `EXE_LBU: signals <= 22'b1_11_0_0_01_0_0_0_0_0_00_00_0_0_0_0_0_0;
+        `EXE_LH:signals <= 22'b1_11_0_0_01_0_0_0_0_0_00_00_0_0_0_0_0_0;
+        `EXE_LHU:signals <= 22'b1_11_0_0_01_0_0_0_0_0_00_00_0_0_0_0_0_0;
+        `EXE_LW:signals <= 22'b1_11_0_0_01_0_0_0_0_0_00_00_0_0_0_0_0_0;
+
+        `EXE_SB:signals <= 22'b0_00_1_0_01_0_0_0_0_0_00_00_0_0_0_0_0_0;
+        `EXE_SH:signals <= 22'b0_00_1_0_01_0_0_0_0_0_00_00_0_0_0_0_0_0;
+        `EXE_SW:signals <= 22'b0_00_1_0_01_0_0_0_0_0_00_00_0_0_0_0_0_0;
 
 
-//======Branch==========
+//======load&&save======
+
+
 
         default:signals <= 22'b0_00_0_0_00_0_0_0_0_0_00_00_000_000;
 
