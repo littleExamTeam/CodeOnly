@@ -3,6 +3,7 @@
 
 module main_dec(
     input wire [5:0] op,funct,
+    input wire [4:0] rt,
 
     output wire jump, regwrite, regdst,
     output wire alusrcA,//正常的话�?0
@@ -42,6 +43,8 @@ assign {regwrite, DatatoReg[1:0], memwrite, alusrcA ,{alusrcB[1:1]}, {alusrcB[0:
 // `define EXE_ORI			6'b001101
 // `define EXE_XORI		6'b001110
 // `define EXE_LUI			6'b001111
+
+
 
 always @(*) begin
 
@@ -101,12 +104,23 @@ always @(*) begin
 //======ARI=============
         `EXE_BEQ: signals <= 22'b0_00_0_0_00_0_0_1_0_0_00_00_0_0_0_0_0_0;
         `EXE_BNE: signals <= 22'b0_00_0_0_00_0_0_1_0_0_00_00_0_0_0_0_0_0;
-        `EXE_BGEZ: signals <= 22'b0_00_0_0_00_0_0_1_0_0_00_00_0_0_0_0_0_0;
+
+        // `EXE_BGEZ: signals <= 22'b0_00_0_0_00_0_0_1_0_0_00_00_0_0_0_0_0_0;
+        // `EXE_BLTZ: signals <= 22'b0_00_0_0_00_0_0_1_0_0_00_00_0_0_0_0_0_0;
+        // `EXE_BGEZAL: signals <= 22'b1_00_0_0_00_0_0_1_0_0_00_00_0_0_0_0_0_1;
+        // `EXE_BLTZAL: signals <= 22'b1_00_0_0_00_0_0_1_0_0_00_00_0_0_0_0_0_1;
+        `6'b000001:begin
+            case(rt)
+                `EXE_BGE:signals <= 22'b0_00_0_0_00_0_0_1_0_0_00_00_0_0_0_0_0_0;
+                `EXE_BLTZ:signals <= 22'b0_00_0_0_00_0_0_1_0_0_00_00_0_0_0_0_0_0;
+                `EXE_BGEZAL:signals <= 22'b1_00_0_0_00_0_0_1_0_0_00_00_0_0_0_0_0_1;
+                `EXE_BLTZAL:signals <= 22'b1_00_0_0_00_0_0_1_0_0_00_00_0_0_0_0_0_1;
+            endcase
+        end
+
+
         `EXE_BGTZ: signals <= 22'b0_00_0_0_00_0_0_1_0_0_00_00_0_0_0_0_0_0;
         `EXE_BLEZ: signals <= 22'b0_00_0_0_00_0_0_1_0_0_00_00_0_0_0_0_0_0;
-        `EXE_BLTZ: signals <= 22'b0_00_0_0_00_0_0_1_0_0_00_00_0_0_0_0_0_0;
-        `EXE_BGEZAL: signals <= 22'b1_00_0_0_00_0_0_1_0_0_00_00_0_0_0_0_0_1;
-        `EXE_BLTZAL: signals <= 22'b1_00_0_0_00_0_0_1_0_0_00_00_0_0_0_0_0_1;
         `EXE_J: signals <= 22'b0_00_0_0_00_0_1_0_0_0_00_00_0_0_0_0_0_0;
         `EXE_JAL: signals <= 22'b1_00_0_0_00_0_1_0_0_0_00_00_0_0_0_1_0_0;
         
@@ -126,6 +140,7 @@ endmodule
 
 module controller(
     input wire [5:0] Op, Funct,
+    input wire [4:0] rt,
     output wire Jump, RegWrite, RegDst,
     output wire ALUSrcA, 
     output wire [1:0] ALUSrcB, 
@@ -152,6 +167,7 @@ module controller(
 main_dec main_dec(
     .op(Op),
     .funct(Funct),
+    .rt(rt),
     .jump(Jump),
     .regwrite(RegWrite),
     .regdst(RegDst),

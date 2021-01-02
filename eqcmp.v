@@ -30,13 +30,13 @@ module eqcmp(
 				end
 			end
 
-			`EXE_BGEZ:begin
-				if(a > 0 || a == 0)begin
-					isTran <= 1'b1;
-				end else begin
-					isTran <= 1'b0;
-				end
-			end
+			// `EXE_BGEZ:begin
+			// 	if(a > 0 || a == 0)begin
+			// 		isTran <= 1'b1;
+			// 	end else begin
+			// 		isTran <= 1'b0;
+			// 	end
+			// end
 
 			`EXE_BGTZ:begin
 				if(a > 0)begin
@@ -54,16 +54,16 @@ module eqcmp(
 				end
 			end
 
-			`EXE_BLTZ:begin
-				if(a < 0)begin
-					isTran <= 1'b1;
-				end else begin
-					isTran <= 1'b0;
-				end
-			end
+			// `EXE_BLTZ:begin
+			// 	if(a < 0)begin
+			// 		isTran <= 1'b1;
+			// 	end else begin
+			// 		isTran <= 1'b0;
+			// 	end
+			// end
 
-			`EXE_BGEZAL:begin
-				if(rt == 5'b10001)begin
+			6'b000001:begin
+				if(rt == `EXE_BGEZAL)begin
 
 					if(a > 0 || a == 0)begin
 						isTran <= 1'b1;
@@ -71,7 +71,7 @@ module eqcmp(
 						isTran <= 1'b0;
 					end
 
-				end else if(rt == 5'b10000) begin
+				end else if(rt == `EXE_BLTZAL) begin
 
 					if(a < 0)begin
 						isTran <= 1'b1;
@@ -79,6 +79,22 @@ module eqcmp(
 						isTran <= 1'b0;
 					end
 					
+				end else if(rt == `EXE_BGEZ) begin
+
+					if(a > 0 || a == 0)begin
+						isTran <= 1'b1;
+					end else begin
+						isTran <= 1'b0;
+					end
+
+				end else if(rt == `EXE_BLTZ) begin
+
+					if(a < 0)begin
+						isTran <= 1'b1;
+					end else begin
+						isTran <= 1'b0;
+					end
+
 				end
 			end
 
