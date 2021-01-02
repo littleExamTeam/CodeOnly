@@ -93,10 +93,10 @@ always @(*) begin
 
 //======ARI=============
 
-        `EXE_ADDI: signals <= 22'b1_00_0_0_01_1_0_0_0_0_00_00_000_000;
-        `EXE_ADDIU: signals <= 22'b1_00_0_0_01_1_0_0_0_0_00_00_000_000;
-        `EXE_SLTI: signals <= 22'b1_00_0_0_01_1_0_0_0_0_00_00_000_000;
-        `EXE_SLTIU: signals <= 22'b1_00_0_0_01_1_0_0_0_0_00_00_000_000;
+        `EXE_ADDI: signals <= 22'b1_00_0_0_01_0_0_0_0_0_00_00_000_000;
+        `EXE_ADDIU: signals <= 22'b1_00_0_0_01_0_0_0_0_0_00_00_000_000;
+        `EXE_SLTI: signals <= 22'b1_00_0_0_01_0_0_0_0_0_00_00_000_000;
+        `EXE_SLTIU: signals <= 22'b1_00_0_0_01_0_0_0_0_0_00_00_000_000;
         
 // assign {regwrite, DatatoReg[1:0], memwrite, alusrcA ,{alusrcB[1:1]}, {alusrcB[0:0]}, regdst, jump, branch,
 //         HIwrite,LOwrite,DataToHI[1:0],DataToLO[1:0],Sign,startDiv,annul,jal,jr,bal} = signals;
