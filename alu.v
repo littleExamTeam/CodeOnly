@@ -139,14 +139,14 @@ module alu(
             // `EXE_SYSCALL_OP: begin result <= x + y;end  //加法
 
             //TODO:访存指令,这里�??要大幅度修改数据通路
-            // `EXE_LB_OP: begin result <= x - y;end //减法
-            // `EXE_LBU_OP: begin result <= x + y;end //无符号数加法
-            // `EXE_LH_OP: begin result <= x | y;end
-            // `EXE_LHU_OP: begin result <= x | y;end
-            // `EXE_LW_OP: begin result <= x + y;end  //加法
-            // `EXE_SB_OP: begin result <= x - y;end //减法
-            // `EXE_SH_OP: begin result <= x + y;end //无符号数加法
-            // `EXE_SW_OP: begin result <= x | y;end
+            `EXE_LB_OP: begin result <= x + y;end 
+            `EXE_LBU_OP: begin result <= x + y;end 
+            `EXE_LH_OP: begin result <= x + y;end
+            `EXE_LHU_OP: begin result <= x + y;end
+            `EXE_LW_OP: begin result <= x + y;end  
+            `EXE_SB_OP: begin result <= x + y;end 
+            `EXE_SH_OP: begin result <= x + y;end 
+            `EXE_SW_OP: begin result <= x + y;end
 
             // //特权指令
             // `EXE_ERET_OP: begin result <= x + y;end  //加法
